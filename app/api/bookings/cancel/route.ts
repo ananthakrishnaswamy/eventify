@@ -1,3 +1,5 @@
+export const runtime = "nodejs";
+
 import { PrismaClient, BookingStatus } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 
