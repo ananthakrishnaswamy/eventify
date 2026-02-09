@@ -7,16 +7,7 @@ const prisma = new PrismaClient();
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
-  const dateParam = searchParams.get("date");
-
-  if (!dateParam) {
-    return NextResponse.json(
-      { error: "date query param required (YYYY-MM-DD)" },
-      { status: 400 }
-    );
-  }
-
-  const date = new Date(dateParam);
+  const date = searchParams.get("date"); // optional for now
 
   const halls = await prisma.vendor.findMany({
     where: {
