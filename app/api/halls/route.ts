@@ -1,22 +1,29 @@
-export const runtime = "nodejs";
-
 import { PrismaClient } from "@prisma/client";
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 
 const prisma = new PrismaClient();
 
-export async function GET(req: NextRequest) {
+export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
-  const date = searchParams.get("date"); // optional for now
+  const dateParam = searchParams.get("date");
+
+  const whereAvailability = dateParam
+    ? {
+        some: {
+          date: new Date(dateParam),
+          isBooked: false,
+        },
+      }
+    : {
+        some: {
+          isBooked: false,
+        },
+      };
 
   const halls = await prisma.vendor.findMany({
     where: {
       type: "HALL",
-      availability: {
-        some: {
-          isBooked: false,
-        },
-      },
+      availability: whereAvailability,
     },
     include: {
       halls: true,
