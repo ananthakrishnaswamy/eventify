@@ -14,7 +14,6 @@ export async function GET(req: NextRequest) {
       type: "HALL",
       availability: {
         some: {
-          date,
           isBooked: false,
         },
       },
