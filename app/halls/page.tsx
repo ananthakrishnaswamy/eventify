@@ -7,15 +7,37 @@ export default function HallsPage() {
   const [date, setDate] = useState("");
   const [halls, setHalls] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   async function search() {
-    if (!date) return alert("Select a date");
+    if (!date) {
+      alert("Please select a date");
+      return;
+    }
 
-    setLoading(true);
-    const res = await fetch(`/api/halls?date=${date}`);
-    const data = await res.json();
-    setHalls(data);
-    setLoading(false);
+    try {
+      setLoading(true);
+      setError(null);
+      setHalls([]);
+
+      const res = await fetch(`/api/halls?date=${date}`);
+
+      if (!res.ok) {
+        throw new Error("Failed to fetch halls");
+      }
+
+      const data = await res.json();
+
+      if (!Array.isArray(data)) {
+        throw new Error("Invalid response from server");
+      }
+
+      setHalls(data);
+    } catch (err: any) {
+      setError(err.message || "Something went wrong");
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -31,17 +53,22 @@ export default function HallsPage() {
         />
         <button
           onClick={search}
-          className="bg-black text-white px-4 py-2"
+          disabled={loading}
+          className="bg-black text-white px-4 py-2 disabled:opacity-50"
         >
-          Search
+          {loading ? "Searching..." : "Search"}
         </button>
       </div>
 
-      {loading && <p>Loading...</p>}
+      {error && <p className="text-red-600 mb-4">{error}</p>}
+
+      {!loading && halls.length === 0 && date && (
+        <p>No halls available for the selected date.</p>
+      )}
 
       <div className="space-y-4">
         {halls.map((hall) => (
-          <div key={hall.id} className="border p-4">
+          <div key={hall.id} className="border p-4 rounded">
             <h2 className="font-bold text-lg">{hall.name}</h2>
             <p>Location: {hall.location}</p>
             <p>Price: ₹{hall.basePrice}</p>
