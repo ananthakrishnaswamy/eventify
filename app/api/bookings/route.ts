@@ -22,12 +22,16 @@ export async function POST(req: Request) {
     const result = await prisma.$transaction(async (tx) => {
       // 1️⃣ Get vendor price
       const vendor = await tx.vendor.findUnique({
-        where: { id: vendorId },
-      });
+  where: { id: vendorId },
+});
 
-      if (!vendor) {
-        throw new Error("Vendor not found");
-      }
+if (!vendor) {
+  throw new Error("Vendor not found");
+}
+
+if (vendor.basePrice === null) {
+  throw new Error("Vendor price not configured");
+}
 
       // 2️⃣ Check availability
       const availability = await tx.vendorAvailability.findFirst({
