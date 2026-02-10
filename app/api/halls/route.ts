@@ -29,7 +29,7 @@ export async function GET(req: NextRequest) {
       },
     },
     include: {
-      halls: true,
+      availability: true,
     },
   });
 
