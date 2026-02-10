@@ -14,14 +14,19 @@ export async function GET(req: Request) {
     );
   }
 
-  // ✅ FORCE UTC DATE (this is the key)
   const [year, month, day] = dateParam.split("-").map(Number);
-  const date = new Date(Date.UTC(year, month - 1, day));
+
+  // ✅ UTC DAY RANGE (this is the fix)
+  const start = new Date(Date.UTC(year, month - 1, day, 0, 0, 0, 0));
+  const end = new Date(Date.UTC(year, month - 1, day, 23, 59, 59, 999));
 
   const availabilities = await prisma.vendorAvailability.findMany({
     where: {
       isBooked: false,
-      date: date,
+      date: {
+        gte: start,
+        lte: end,
+      },
       vendor: {
         type: "HALL",
       },
