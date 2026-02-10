@@ -1,9 +1,20 @@
 // app/halls/page.tsx
-export const dynamic = "force-dynamic";
 
-async function getHalls() {
+type Availability = {
+  id: string;
+  date: string;
+  isBooked: boolean;
+  vendor: {
+    id: string;
+    name: string;
+    location: string;
+    basePrice: number;
+  };
+};
+
+async function getHalls(): Promise<Availability[]> {
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_BASE_URL}/api/halls?date=2026-02-15`,
+    "https://eventify-self.vercel.app/api/halls?date=2026-02-15",
     { cache: "no-store" }
   );
 
@@ -24,9 +35,15 @@ export default async function HallsPage() {
       {halls.length === 0 && <p>No halls available</p>}
 
       <ul>
-        {halls.map((hall: any) => (
-          <li key={hall.id}>
-            <strong>{hall.name}</strong> — ₹{hall.price}
+        {halls.map((item) => (
+          <li key={item.id} style={{ marginBottom: 16 }}>
+            <strong>{item.vendor.name}</strong>
+            <br />
+            Location: {item.vendor.location}
+            <br />
+            Price: ₹{item.vendor.basePrice}
+            <br />
+            Date: {new Date(item.date).toDateString()}
           </li>
         ))}
       </ul>
