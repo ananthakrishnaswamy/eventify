@@ -25,8 +25,8 @@ async function main() {
       availability: {
         createMany: {
           data: [
-            { date: new Date("2026-02-10") },
-            { date: new Date("2026-02-11") },
+            { date: new Date(Date.UTC(2026, 1, 15)) },
+            { date: new Date(Date.UTC(2026, 1, 16)) },
           ],
         },
       },
@@ -49,8 +49,8 @@ async function main() {
       availability: {
         createMany: {
           data: [
-            { date: new Date("2026-02-11") },
-            { date: new Date("2026-02-12") },
+            { date: new Date(Date.UTC(2026, 1, 15)) },
+            { date: new Date(Date.UTC(2026, 1, 16)) },
           ],
         },
       },
