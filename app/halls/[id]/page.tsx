@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useSearchParams, useRouter } from "next/navigation";
 
-type HallDetails = {
+type Availability = {
   id: string;
   date: string;
   vendor: {
@@ -22,22 +22,22 @@ export default function ConfirmBookingPage() {
   const availabilityId = params.id as string;
   const date = searchParams.get("date");
 
-  const [hall, setHall] = useState<HallDetails | null>(null);
+  const [slot, setSlot] = useState<Availability | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // 🔹 Load hall info
+  // ✅ Load selected availability
   useEffect(() => {
     async function load() {
-      const res = await fetch(`/api/halls/${availabilityId}`);
+      const res = await fetch(`/api/halls/${availabilityId}?date=${date}`);
       const data = await res.json();
-      setHall(data);
+      setSlot(data);
       setLoading(false);
     }
 
     load();
-  }, [availabilityId]);
+  }, [availabilityId, date]);
 
-  // 🔹 Create booking
+  // ✅ Create booking
   async function confirmBooking() {
     const res = await fetch("/api/bookings", {
       method: "POST",
@@ -46,7 +46,6 @@ export default function ConfirmBookingPage() {
       },
       body: JSON.stringify({
         availabilityId,
-        date,
         customerName: "Test User",
         customerPhone: "9999999999",
       }),
@@ -57,31 +56,31 @@ export default function ConfirmBookingPage() {
       return;
     }
 
-    router.push("/bookings"); // ✅ go to bookings page
+    router.push("/bookings");
   }
 
   if (loading) return <p style={{ padding: 40 }}>Loading…</p>;
-  if (!hall) return <p style={{ padding: 40 }}>Hall not found</p>;
+  if (!slot) return <p style={{ padding: 40 }}>Slot not found</p>;
 
   return (
     <div style={{ padding: 40 }}>
       <h1>Confirm Booking</h1>
 
-      <h2>{hall.vendor.name}</h2>
-      <p>Location: {hall.vendor.location}</p>
-      <p>Date: {new Date(hall.date).toDateString()}</p>
-      <p>Amount: ₹{hall.vendor.basePrice}</p>
+      <h2>{slot.vendor.name}</h2>
+      <p>Location: {slot.vendor.location}</p>
+      <p>Date: {new Date(slot.date).toDateString()}</p>
+      <p>Amount: ₹{slot.vendor.basePrice}</p>
 
       <button
         onClick={confirmBooking}
         style={{
           marginTop: 20,
-          padding: "10px 18px",
+          padding: "10px 20px",
           backgroundColor: "green",
           color: "white",
           border: "none",
           borderRadius: 6,
-          fontSize: 16,
+          fontWeight: 600,
           cursor: "pointer",
         }}
       >
