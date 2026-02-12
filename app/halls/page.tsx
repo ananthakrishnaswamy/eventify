@@ -1,33 +1,68 @@
-import { PrismaClient } from "@prisma/client";
+"use client";
+
+import { useState } from "react";
 import Link from "next/link";
 
-const prisma = new PrismaClient();
+type HallAvailability = {
+  id: string;
+  date: string;
+  vendorId: string;
+  vendor: {
+    name: string;
+    location: string;
+    basePrice: number;
+  };
+};
 
-export default async function HallsPage() {
-  const start = new Date(Date.UTC(2026, 1, 15, 0, 0, 0));
-  const end = new Date(Date.UTC(2026, 1, 15, 23, 59, 59));
+export default function HallsPage() {
+  const [date, setDate] = useState("");
+  const [halls, setHalls] = useState<HallAvailability[]>([]);
+  const [loading, setLoading] = useState(false);
 
-  const halls = await prisma.vendorAvailability.findMany({
-    where: {
-      isBooked: false,
-      date: {
-        gte: start,
-        lte: end,
-      },
-      vendor: {
-        type: "HALL",
-      },
-    },
-    include: {
-      vendor: true,
-    },
-  });
+  async function search() {
+    if (!date) {
+      alert("Please select a date");
+      return;
+    }
+
+    setLoading(true);
+    const res = await fetch(`/api/halls?date=${date}`, {
+      cache: "no-store",
+    });
+
+    const data = await res.json();
+    setHalls(data);
+    setLoading(false);
+  }
 
   return (
     <div style={{ padding: 40 }}>
-      <h1>Available Halls</h1>
+      <h1>Find Available Halls</h1>
 
-      {halls.length === 0 && <p>No halls available</p>}
+      {/* Date Picker */}
+      <div style={{ marginBottom: 20 }}>
+        <input
+          type="date"
+          value={date}
+          onChange={(e) => setDate(e.target.value)}
+          style={{ padding: 8 }}
+        />
+        <button
+          onClick={search}
+          style={{
+            marginLeft: 10,
+            padding: "8px 16px",
+            background: "black",
+            color: "white",
+          }}
+        >
+          Search
+        </button>
+      </div>
+
+      {loading && <p>Loading...</p>}
+
+      {halls.length === 0 && !loading && <p>No halls available</p>}
 
       <ul>
         {halls.map((item) => (
@@ -41,7 +76,7 @@ export default async function HallsPage() {
               maxWidth: 420,
             }}
           >
-            <strong style={{ fontSize: 18 }}>{item.vendor.name}</strong>
+            <strong>{item.vendor.name}</strong>
             <br />
             Location: {item.vendor.location}
             <br />
@@ -50,9 +85,8 @@ export default async function HallsPage() {
             Date: {new Date(item.date).toDateString()}
             <br />
 
-            {/* ✅ This is how navigation works in Server Components */}
             <Link
-              href={`/halls/${item.vendorId}?date=${item.date.toISOString()}`}
+              href={`/halls/${item.vendorId}?date=${item.date}`}
               style={{
                 display: "inline-block",
                 marginTop: 12,
