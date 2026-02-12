@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client";
+import Link from "next/link";
 
 const prisma = new PrismaClient();
 
@@ -37,12 +38,10 @@ export default async function HallsPage() {
               padding: 16,
               border: "1px solid #ddd",
               borderRadius: 8,
-              maxWidth: 400,
+              maxWidth: 420,
             }}
           >
-            <strong style={{ fontSize: 18 }}>
-              {item.vendor.name}
-            </strong>
+            <strong style={{ fontSize: 18 }}>{item.vendor.name}</strong>
             <br />
             Location: {item.vendor.location}
             <br />
@@ -51,20 +50,22 @@ export default async function HallsPage() {
             Date: {new Date(item.date).toDateString()}
             <br />
 
-            <button
+            {/* ✅ This is how navigation works in Server Components */}
+            <Link
+              href={`/halls/${item.vendorId}?date=${item.date.toISOString()}`}
               style={{
+                display: "inline-block",
                 marginTop: 12,
                 padding: "8px 16px",
                 backgroundColor: "#2563eb",
                 color: "#fff",
-                border: "none",
                 borderRadius: 6,
-                cursor: "pointer",
                 fontWeight: 600,
+                textDecoration: "none",
               }}
             >
-              Book Now
-            </button>
+              Book Now →
+            </Link>
           </li>
         ))}
       </ul>
