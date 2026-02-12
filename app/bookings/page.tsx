@@ -16,30 +16,48 @@ type Booking = {
 export default function BookingsPage() {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
+  const [cancellingId, setCancellingId] = useState<string | null>(null);
 
   async function loadBookings() {
-    const res = await fetch("/api/bookings", { cache: "no-store" });
-    const data = await res.json();
-    setBookings(data);
-    setLoading(false);
+    try {
+      const res = await fetch("/api/bookings", { cache: "no-store" });
+      if (!res.ok) throw new Error("Failed to fetch bookings");
+
+      const data = await res.json();
+      setBookings(data);
+    } catch (err) {
+      console.error(err);
+      alert("Failed to load bookings");
+    } finally {
+      setLoading(false);
+    }
   }
 
   async function cancelBooking(id: string) {
-    const confirm = window.confirm("Cancel this booking?");
-    if (!confirm) return;
+    const confirmCancel = window.confirm("Cancel this booking?");
+    if (!confirmCancel) return;
 
-    const res = await fetch("/api/bookings/cancel", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ bookingId: id }),
-    });
+    try {
+      setCancellingId(id);
 
-    if (!res.ok) {
+      const res = await fetch(`/api/bookings/${id}`, {
+        method: "DELETE",
+      });
+
+      if (!res.ok) throw new Error("Cancel failed");
+
+      // ✅ Update UI instantly (no reload needed)
+      setBookings((prev) =>
+        prev.map((b) =>
+          b.id === id ? { ...b, status: "CANCELLED" } : b
+        )
+      );
+    } catch (err) {
+      console.error(err);
       alert("Failed to cancel booking");
-      return;
+    } finally {
+      setCancellingId(null);
     }
-
-    await loadBookings();
   }
 
   useEffect(() => {
@@ -58,12 +76,16 @@ export default function BookingsPage() {
         <div
           key={b.id}
           style={{
-            border: "1px solid #ccc",
-            padding: 16,
-            marginBottom: 16,
+            border: "1px solid #ddd",
+            borderRadius: 8,
+            padding: 20,
+            marginBottom: 20,
+            maxWidth: 420,
+            background: b.status === "CANCELLED" ? "#f9f9f9" : "#fff",
+            opacity: b.status === "CANCELLED" ? 0.7 : 1,
           }}
         >
-          <strong>{b.vendor.name}</strong>
+          <strong style={{ fontSize: 18 }}>{b.vendor.name}</strong>
           <br />
           {b.vendor.location}
           <br />
@@ -71,20 +93,29 @@ export default function BookingsPage() {
           <br />
           Amount: ₹{b.amount}
           <br />
-          Status: <b>{b.status}</b>
+          Status:{" "}
+          <b style={{ color: b.status === "CONFIRMED" ? "green" : "gray" }}>
+            {b.status}
+          </b>
           <br />
 
           {b.status === "CONFIRMED" && (
             <button
               onClick={() => cancelBooking(b.id)}
+              disabled={cancellingId === b.id}
               style={{
-                marginTop: 8,
-                background: "red",
-                color: "white",
-                padding: "6px 12px",
+                marginTop: 12,
+                padding: "8px 16px",
+                backgroundColor: "#dc2626",
+                color: "#fff",
+                border: "none",
+                borderRadius: 6,
+                cursor: "pointer",
+                fontWeight: 600,
+                opacity: cancellingId === b.id ? 0.6 : 1,
               }}
             >
-              Cancel Booking
+              {cancellingId === b.id ? "Cancelling..." : "Cancel Booking"}
             </button>
           )}
         </div>
