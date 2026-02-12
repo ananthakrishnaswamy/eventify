@@ -1,13 +1,14 @@
 import { prisma } from "@/lib/prisma";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 export async function DELETE(
-  _req: Request,
-  { params }: { params: { id: string } }
+  _req: NextRequest,
+  context: { params: Promise<{ id: string }> }
 ) {
-  const bookingId = params.id;
-
   try {
+    // ✅ Next.js 16 requires awaiting params
+    const { id: bookingId } = await context.params;
+
     // 1️⃣ Find booking
     const booking = await prisma.booking.findUnique({
       where: { id: bookingId },
