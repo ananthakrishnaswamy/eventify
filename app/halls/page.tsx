@@ -86,7 +86,7 @@ export default function HallsPage() {
             <br />
 
             <Link
-              href={`/halls/${item.vendorId}?date=${item.date}`}
+	      href={`/halls/${item.id}?date=${encodeURIComponent(item.date)}`}	
               style={{
                 display: "inline-block",
                 marginTop: 12,

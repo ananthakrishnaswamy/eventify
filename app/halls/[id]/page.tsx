@@ -26,17 +26,23 @@ export default function ConfirmBookingPage() {
   const [loading, setLoading] = useState(true);
 
   // ✅ Load selected availability
-  useEffect(() => {
-    async function load() {
-      const res = await fetch(`/api/halls/${availabilityId}?date=${date}`);
-      const data = await res.json();
-      setSlot(data);
+useEffect(() => {
+  async function load() {
+    const res = await fetch(`/api/halls/${availabilityId}`);
+
+    if (!res.ok) {
+      console.error("Failed to fetch slot");
       setLoading(false);
+      return;
     }
 
-    load();
-  }, [availabilityId, date]);
+    const data = await res.json();
+    setSlot(data);
+    setLoading(false);
+  }
 
+  load();
+}, [availabilityId]);
   // ✅ Create booking
   async function confirmBooking() {
     const res = await fetch("/api/bookings", {
