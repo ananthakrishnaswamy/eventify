@@ -44,7 +44,7 @@ async function main() {
       type: "HALL",
       location: "Bangalore",
       basePrice: 50000,
-      halls: {
+      hall: {
         create: {
           capacity: 300,
           amenities: ["Parking", "Power Backup", "AC"],
@@ -67,7 +67,7 @@ async function main() {
       type: "HALL",
       location: "Bangalore",
       basePrice: 75000,
-      halls: {
+      hall: {
         create: {
           capacity: 500,
           amenities: ["Parking", "Generator", "Stage"],
