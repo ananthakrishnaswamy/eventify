@@ -4,46 +4,72 @@ import { NextResponse } from "next/server";
 const prisma = new PrismaClient();
 
 export async function POST(req: Request) {
-  const { date, hallId, catererId, purohitId } = await req.json();
-
   try {
+    const body = await req.json();
+
+    const {
+      date,
+      hallId,
+      catererId,
+      purohitId,
+      customerName,
+      customerPhone,
+    } = body;
+
+    if (!date || !hallId || !customerName || !customerPhone) {
+      return NextResponse.json(
+        { error: "Missing required fields" },
+        { status: 400 }
+      );
+    }
+
+    // Example total calculation (you can improve later)
     const hall = await prisma.vendor.findUnique({
       where: { id: hallId },
     });
 
-    if (!hall) {
-      return NextResponse.json({ error: "Hall required" }, { status: 400 });
-    }
+    const caterer = catererId
+      ? await prisma.vendor.findUnique({ where: { id: catererId } })
+      : null;
+
+    const purohit = purohitId
+      ? await prisma.vendor.findUnique({ where: { id: purohitId } })
+      : null;
 
     const total =
-      (hall.basePrice || 0);
+      (hall?.basePrice || 0) +
+      (caterer?.basePrice || 0) +
+      (purohit?.basePrice || 0);
 
-const event = await prisma.eventBooking.create({
-  data: {
-    date: new Date(date),
+    const event = await prisma.eventBooking.create({
+      data: {
+        date: new Date(date),
 
-    hall: {
-      connect: { id: hallId },
-    },
+        hall: {
+          connect: { id: hallId },
+        },
 
-    caterer: catererId
-      ? { connect: { id: catererId } }
-      : undefined,
+        caterer: catererId
+          ? { connect: { id: catererId } }
+          : undefined,
 
-    purohit: purohitId
-      ? { connect: { id: purohitId } }
-      : undefined,
+        purohit: purohitId
+          ? { connect: { id: purohitId } }
+          : undefined,
 
-    totalAmount: total,
-    customerName,
-    customerPhone,
-  },
-});
+        totalAmount: total,
+        customerName,
+        customerPhone,
+      },
+    });
 
     return NextResponse.json(event);
-  } catch (err) {
-    console.error(err);
-    return NextResponse.json({ error: "Failed" }, { status: 500 });
+  } catch (error) {
+    console.error("Event booking error:", error);
+    return NextResponse.json(
+      { error: "Event booking failed" },
+      { status: 500 }
+    );
   }
 }
 
