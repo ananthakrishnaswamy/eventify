@@ -15,7 +15,7 @@ generator client {
 enum VendorType {
   HALL
   CATERER
-  PANDIT
+  PUROHIT
   DECOR
   MUSIC
   PHOTOGRAPHY
@@ -53,7 +53,7 @@ model Vendor {
   // Event bundle bookings
   eventHallBookings     EventBooking[] @relation("HallBooking")
   eventCatererBookings  EventBooking[] @relation("CatererBooking")
-  eventPanditBookings   EventBooking[] @relation("PanditBooking")
+  eventPurohitBookings   EventBooking[] @relation("PurohitBooking")
 }
 
 //////////////////////////////////////////////////////
@@ -125,7 +125,7 @@ model EventBooking {
 
   hallId        String
   catererId     String?
-  panditId      String?
+  purohitId      String?
 
   totalAmount   Int
   status        BookingStatus @default(CONFIRMED)
@@ -137,6 +137,6 @@ model EventBooking {
 
   hall     Vendor   @relation("HallBooking", fields: [hallId], references: [id])
   caterer  Vendor?  @relation("CatererBooking", fields: [catererId], references: [id])
-  pandit   Vendor?  @relation("PanditBooking", fields: [panditId], references: [id])
+  purohit   Vendor?  @relation("PurohitBooking", fields: [purohitId], references: [id])
 }
 
