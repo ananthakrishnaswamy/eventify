@@ -23,7 +23,6 @@ export default function CreateEventPage() {
 
   const [loading, setLoading] = useState(false);
 
-  // Load vendors when date changes
   useEffect(() => {
     if (!date) return;
 
@@ -46,21 +45,18 @@ export default function CreateEventPage() {
     const selected = vendors.filter(v =>
       [selectedHall, selectedCaterer, selectedPurohit].includes(v.id)
     );
-
     return selected.reduce((sum, v) => sum + (v.basePrice || 0), 0);
   }
 
   async function confirmEvent() {
     if (!date || !selectedHall) {
-      alert("Select date and hall");
+      alert("Please select a date and hall");
       return;
     }
 
     const res = await fetch("/api/event-booking", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         date,
         hallId: selectedHall,
@@ -80,120 +76,191 @@ export default function CreateEventPage() {
   }
 
   return (
-    <div style={{ padding: 40 }}>
-      <h1>Create Event Bundle</h1>
+    <div style={containerStyle}>
+      <h1 style={titleStyle}>Create Your Event Bundle</h1>
 
       {/* Date Selection */}
-      <div style={{ marginBottom: 20 }}>
-        <label>Select Date: </label>
+      <div style={sectionStyle}>
+        <label style={{ fontWeight: 600 }}>Select Event Date</label>
         <input
           type="date"
           value={date}
           onChange={e => setDate(e.target.value)}
+          style={dateInputStyle}
         />
       </div>
 
-      {loading && <p>Loading vendors…</p>}
+      {loading && <p>Loading vendors...</p>}
 
-      {/* HALLS */}
       {date && (
-        <>
-          <h2>Select Hall</h2>
-          {halls.map(v => (
-            <VendorCard
-              key={v.id}
-              vendor={v}
-              selected={selectedHall === v.id}
-              onSelect={() => setSelectedHall(v.id)}
-            />
-          ))}
+        <div style={gridStyle}>
+          <VendorSection
+            title="Select Hall"
+            vendors={halls}
+            selectedId={selectedHall}
+            onSelect={setSelectedHall}
+          />
 
-          <h2>Select Caterer</h2>
-          {caterers.map(v => (
-            <VendorCard
-              key={v.id}
-              vendor={v}
-              selected={selectedCaterer === v.id}
-              onSelect={() => setSelectedCaterer(v.id)}
-            />
-          ))}
+          <VendorSection
+            title="Select Caterer"
+            vendors={caterers}
+            selectedId={selectedCaterer}
+            onSelect={setSelectedCaterer}
+          />
 
-          <h2>Select Purohit</h2>
-          {purohits.map(v => (
-            <VendorCard
-              key={v.id}
-              vendor={v}
-              selected={selectedPurohit === v.id}
-              onSelect={() => setSelectedPurohit(v.id)}
-            />
-          ))}
+          <VendorSection
+            title="Select Purohit"
+            vendors={purohits}
+            selectedId={selectedPurohit}
+            onSelect={setSelectedPurohit}
+          />
+        </div>
+      )}
 
-          {/* Total */}
-          <div style={{ marginTop: 30 }}>
-            <h3>Total: ₹{calculateTotal()}</h3>
-
-            <button
-              onClick={confirmEvent}
-              style={{
-                padding: "10px 20px",
-                backgroundColor: "green",
-                color: "white",
-                border: "none",
-                borderRadius: 6,
-                cursor: "pointer",
-                fontWeight: 600,
-              }}
-            >
-              Confirm Full Event
-            </button>
+      {date && (
+        <div style={stickyTotalStyle}>
+          <div>
+            <strong>Total:</strong> ₹{calculateTotal()}
           </div>
-        </>
+          <button onClick={confirmEvent} style={confirmButtonStyle}>
+            Confirm Full Event
+          </button>
+        </div>
       )}
     </div>
   );
 }
 
-function VendorCard({
-  vendor,
-  selected,
+function VendorSection({
+  title,
+  vendors,
+  selectedId,
   onSelect,
 }: {
-  vendor: Vendor;
-  selected: boolean;
-  onSelect: () => void;
+  title: string;
+  vendors: Vendor[];
+  selectedId: string | null;
+  onSelect: (id: string) => void;
 }) {
   return (
-    <div
-      style={{
-        border: selected ? "2px solid blue" : "1px solid #ddd",
-        padding: 16,
-        marginBottom: 12,
-        borderRadius: 8,
-        maxWidth: 400,
-      }}
-    >
-      <strong>{vendor.name}</strong>
-      <br />
-      Location: {vendor.location}
-      <br />
-      Price: ₹{vendor.basePrice || 0}
-      <br />
+    <div style={sectionCardStyle}>
+      <h2 style={{ marginBottom: 16 }}>{title}</h2>
 
-      <button
-        onClick={onSelect}
-        style={{
-          marginTop: 10,
-          padding: "6px 12px",
-          backgroundColor: selected ? "blue" : "#2563eb",
-          color: "white",
-          border: "none",
-          borderRadius: 6,
-          cursor: "pointer",
-        }}
-      >
-        {selected ? "Selected" : "Select"}
-      </button>
+      {vendors.length === 0 && <p>No vendors available</p>}
+
+      {vendors.map(v => (
+        <div
+          key={v.id}
+          style={{
+            ...vendorCardStyle,
+            border:
+              selectedId === v.id
+                ? "2px solid #2563eb"
+                : "1px solid #e5e7eb",
+          }}
+        >
+          <div>
+            <strong>{v.name}</strong>
+            <div style={{ fontSize: 14, color: "#555" }}>
+              {v.location}
+            </div>
+            <div style={{ marginTop: 6 }}>
+              ₹{v.basePrice || 0}
+            </div>
+          </div>
+
+          <button
+            onClick={() => onSelect(v.id)}
+            style={{
+              ...selectButtonStyle,
+              backgroundColor:
+                selectedId === v.id ? "#1e40af" : "#2563eb",
+            }}
+          >
+            {selectedId === v.id ? "Selected" : "Select"}
+          </button>
+        </div>
+      ))}
     </div>
   );
 }
+
+/* ---------- STYLES ---------- */
+
+const containerStyle = {
+  maxWidth: 1100,
+  margin: "40px auto",
+  padding: 20,
+};
+
+const titleStyle = {
+  fontSize: 28,
+  fontWeight: 700,
+  marginBottom: 30,
+};
+
+const sectionStyle = {
+  marginBottom: 30,
+  display: "flex",
+  flexDirection: "column" as const,
+  gap: 8,
+};
+
+const dateInputStyle = {
+  padding: 10,
+  borderRadius: 6,
+  border: "1px solid #ddd",
+  width: 200,
+};
+
+const gridStyle = {
+  display: "grid",
+  gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
+  gap: 24,
+};
+
+const sectionCardStyle = {
+  background: "#fff",
+  padding: 20,
+  borderRadius: 12,
+  boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
+};
+
+const vendorCardStyle = {
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  padding: 12,
+  marginBottom: 12,
+  borderRadius: 8,
+};
+
+const selectButtonStyle = {
+  padding: "6px 14px",
+  color: "white",
+  border: "none",
+  borderRadius: 6,
+  cursor: "pointer",
+  fontWeight: 600,
+};
+
+const stickyTotalStyle = {
+  marginTop: 40,
+  padding: 20,
+  borderTop: "1px solid #eee",
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  fontSize: 18,
+};
+
+const confirmButtonStyle = {
+  padding: "10px 20px",
+  backgroundColor: "green",
+  color: "white",
+  border: "none",
+  borderRadius: 8,
+  cursor: "pointer",
+  fontWeight: 600,
+};
 
