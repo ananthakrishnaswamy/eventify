@@ -1,11 +1,16 @@
-// 1. your database provider
+// 1️⃣ Database
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
 generator client {
   provider = "prisma-client-js"
 }
+
+//////////////////////////////////////////////////////
+// ENUMS
+//////////////////////////////////////////////////////
 
 enum VendorType {
   HALL
@@ -23,6 +28,10 @@ enum BookingStatus {
   CANCELLED
 }
 
+//////////////////////////////////////////////////////
+// VENDOR
+//////////////////////////////////////////////////////
+
 model Vendor {
   id          String      @id @default(uuid())
   name        String
@@ -32,20 +41,37 @@ model Vendor {
   location    String
   createdAt   DateTime    @default(now())
 
-  halls       Hall?
+  // One-to-one (only for HALL type)
+  hall        Hall?
+
   menus       Menu[]
   availability VendorAvailability[]
+
+  // Individual vendor bookings
   bookings    Booking[]
+
+  // Event bundle bookings
+  eventHallBookings     EventBooking[] @relation("HallBooking")
+  eventCatererBookings  EventBooking[] @relation("CatererBooking")
+  eventPanditBookings   EventBooking[] @relation("PanditBooking")
 }
+
+//////////////////////////////////////////////////////
+// HALL DETAILS (Only for HALL type)
+//////////////////////////////////////////////////////
 
 model Hall {
-  id          String   @id @default(uuid())
-  vendorId    String   @unique
-  capacity    Int
-  amenities   String[]
+  id        String   @id @default(uuid())
+  vendorId  String   @unique
+  capacity  Int
+  amenities String[]
 
-  vendor      Vendor   @relation(fields: [vendorId], references: [id])
+  vendor    Vendor   @relation(fields: [vendorId], references: [id])
 }
+
+//////////////////////////////////////////////////////
+// MENU (Only for Caterers)
+//////////////////////////////////////////////////////
 
 model Menu {
   id        String   @id @default(uuid())
@@ -56,6 +82,10 @@ model Menu {
 
   vendor    Vendor   @relation(fields: [vendorId], references: [id])
 }
+
+//////////////////////////////////////////////////////
+// AVAILABILITY (For all vendors)
+//////////////////////////////////////////////////////
 
 model VendorAvailability {
   id        String   @id @default(uuid())
@@ -68,15 +98,45 @@ model VendorAvailability {
   @@unique([vendorId, date])
 }
 
-model Booking {
-  id          String        @id @default(uuid())
-  vendorId    String
-  date        DateTime
-  amount      Int
-  status      BookingStatus
-  customerName String
-  customerPhone String
-  createdAt   DateTime      @default(now())
+//////////////////////////////////////////////////////
+// SINGLE VENDOR BOOKING (Your current system)
+//////////////////////////////////////////////////////
 
-  vendor      Vendor        @relation(fields: [vendorId], references: [id])
+model Booking {
+  id            String        @id @default(uuid())
+  vendorId      String
+  date          DateTime
+  amount        Int
+  status        BookingStatus @default(CONFIRMED)
+  customerName  String
+  customerPhone String
+  createdAt     DateTime      @default(now())
+
+  vendor        Vendor        @relation(fields: [vendorId], references: [id])
 }
+
+//////////////////////////////////////////////////////
+// NEW: EVENT BUNDLE BOOKING
+//////////////////////////////////////////////////////
+
+model EventBooking {
+  id            String        @id @default(uuid())
+  date          DateTime
+
+  hallId        String
+  catererId     String?
+  panditId      String?
+
+  totalAmount   Int
+  status        BookingStatus @default(CONFIRMED)
+
+  customerName  String
+  customerPhone String
+
+  createdAt     DateTime      @default(now())
+
+  hall     Vendor   @relation("HallBooking", fields: [hallId], references: [id])
+  caterer  Vendor?  @relation("CatererBooking", fields: [catererId], references: [id])
+  pandit   Vendor?  @relation("PanditBooking", fields: [panditId], references: [id])
+}
+
