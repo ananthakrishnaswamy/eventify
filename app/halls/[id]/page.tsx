@@ -3,8 +3,18 @@
 import { useEffect, useState } from "react";
 import { useParams, useSearchParams, useRouter } from "next/navigation";
 
-export default function ConfirmBookingPage() {
+type Availability = {
+  id: string;
+  date: string;
+  vendor: {
+    id: string;
+    name: string;
+    location: string;
+    basePrice: number;
+  };
+};
 
+export default function ConfirmBookingPage() {
   const router = useRouter();
   const params = useParams();
   const searchParams = useSearchParams();
@@ -12,15 +22,25 @@ export default function ConfirmBookingPage() {
   const availabilityId = params.id as string;
   const date = searchParams.get("date");
 
-  const [slot, setSlot] = useState<any>(null);
+  const [slot, setSlot] = useState<Availability | null>(null);
   const [loading, setLoading] = useState(true);
+  const [confirming, setConfirming] = useState(false);
 
   useEffect(() => {
     async function load() {
-      const res = await fetch(`/api/halls/${availabilityId}?date=${date}`);
-      const data = await res.json();
-      setSlot(data);
-      setLoading(false);
+      try {
+        const res = await fetch(
+          `/api/halls/${availabilityId}?date=${date}`
+        );
+        if (!res.ok) throw new Error("Failed to load slot");
+
+        const data = await res.json();
+        setSlot(data);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
     }
 
     if (availabilityId && date) {
@@ -29,55 +49,78 @@ export default function ConfirmBookingPage() {
   }, [availabilityId, date]);
 
   async function confirmBooking() {
-    const res = await fetch("/api/bookings", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        availabilityId,
-        customerName: "Test User",
-        customerPhone: "9999999999",
-      }),
-    });
+    try {
+      setConfirming(true);
 
-    if (!res.ok) {
+      const res = await fetch("/api/bookings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          availabilityId,
+          customerName: "Test User",
+          customerPhone: "9999999999",
+        }),
+      });
+
+      if (!res.ok) throw new Error("Booking failed");
+
+      router.push("/bookings");
+    } catch (err) {
+      console.error(err);
       alert("Booking failed");
-      return;
+    } finally {
+      setConfirming(false);
     }
-
-    router.push("/bookings");
   }
 
-  if (loading) return <p className="p-6">Loading…</p>;
-  if (!slot) return <p className="p-6">Slot not found</p>;
+  if (loading)
+    return <p className="p-6 text-center">Loading…</p>;
+
+  if (!slot)
+    return <p className="p-6 text-center">Slot not found</p>;
 
   return (
     <div className="min-h-screen bg-gray-50 p-6 pb-24">
-      <h1 className="text-2xl font-bold mb-4">Confirm Booking</h1>
+      {/* Back Button */}
+      <button
+        onClick={() => router.back()}
+        className="mb-4 text-indigo-600 font-semibold hover:underline"
+      >
+        ← Back
+      </button>
 
-      <div className="bg-white p-5 rounded-xl shadow">
-        <h2 className="text-xl font-semibold">
+      {/* Title */}
+      <h1 className="text-2xl font-bold mb-4 text-indigo-700">
+        Confirm Booking
+      </h1>
+
+      {/* Card */}
+      <div className="bg-white p-6 rounded-2xl shadow-md">
+        <h2 className="text-xl font-semibold mb-2">
           {slot.vendor.name}
         </h2>
 
-        <p className="text-gray-600">
+        <p className="text-gray-600 mb-1">
           📍 {slot.vendor.location}
         </p>
 
-        <p className="mt-2">
+        <p className="mb-1">
           📅 {new Date(slot.date).toDateString()}
         </p>
 
-        <p className="mt-2 font-semibold">
+        <p className="mt-3 text-lg font-bold text-green-600">
           ₹{slot.vendor.basePrice}
         </p>
       </div>
 
+      {/* Sticky Confirm Button */}
       <div className="fixed bottom-0 left-0 right-0 bg-white p-4 shadow-lg">
         <button
           onClick={confirmBooking}
-          className="w-full bg-green-600 text-white py-3 rounded-xl font-bold active:scale-95 transition"
+          disabled={confirming}
+          className="w-full bg-green-600 text-white py-3 rounded-xl font-bold active:scale-95 transition disabled:opacity-60"
         >
-          Confirm Booking
+          {confirming ? "Processing..." : "Confirm Booking"}
         </button>
       </div>
     </div>
