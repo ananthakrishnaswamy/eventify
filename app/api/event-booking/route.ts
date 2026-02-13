@@ -18,15 +18,27 @@ export async function POST(req: Request) {
     const total =
       (hall.basePrice || 0);
 
-    const event = await prisma.eventBooking.create({
-      data: {
-        date: new Date(date),
-        hallId,
-        catererId,
-        purohitId,
-        totalAmount: total,
-      },
-    });
+const event = await prisma.eventBooking.create({
+  data: {
+    date: new Date(date),
+
+    hall: {
+      connect: { id: hallId },
+    },
+
+    caterer: catererId
+      ? { connect: { id: catererId } }
+      : undefined,
+
+    purohit: purohitId
+      ? { connect: { id: purohitId } }
+      : undefined,
+
+    totalAmount: total,
+    customerName,
+    customerPhone,
+  },
+});
 
     return NextResponse.json(event);
   } catch (err) {
