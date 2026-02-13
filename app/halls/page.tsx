@@ -1,108 +1,60 @@
-"use client";
-
-import { useState } from "react";
 import Link from "next/link";
+import { PrismaClient } from "@prisma/client";
 
-type HallAvailability = {
-  id: string;
-  date: string;
-  vendorId: string;
-  vendor: {
-    name: string;
-    location: string;
-    basePrice: number;
-  };
-};
+const prisma = new PrismaClient();
 
-export default function HallsPage() {
-  const [date, setDate] = useState("");
-  const [halls, setHalls] = useState<HallAvailability[]>([]);
-  const [loading, setLoading] = useState(false);
+export default async function HallsPage() {
+  const start = new Date(Date.UTC(2026, 1, 15, 0, 0, 0));
+  const end = new Date(Date.UTC(2026, 1, 15, 23, 59, 59));
 
-  async function search() {
-    if (!date) {
-      alert("Please select a date");
-      return;
-    }
-
-    setLoading(true);
-    const res = await fetch(`/api/halls?date=${date}`, {
-      cache: "no-store",
-    });
-
-    const data = await res.json();
-    setHalls(data);
-    setLoading(false);
-  }
+  const halls = await prisma.vendorAvailability.findMany({
+    where: {
+      isBooked: false,
+      date: { gte: start, lte: end },
+      vendor: { type: "HALL" },
+    },
+    include: { vendor: true },
+  });
 
   return (
-    <div style={{ padding: 40 }}>
-      <h1>Find Available Halls</h1>
+    <div className="min-h-screen bg-gray-100 p-4">
+      <h1 className="text-2xl font-bold mb-4">Available Halls</h1>
 
-      {/* Date Picker */}
-      <div style={{ marginBottom: 20 }}>
-        <input
-          type="date"
-          value={date}
-          onChange={(e) => setDate(e.target.value)}
-          style={{ padding: 8 }}
-        />
-        <button
-          onClick={search}
-          style={{
-            marginLeft: 10,
-            padding: "8px 16px",
-            background: "black",
-            color: "white",
-          }}
-        >
-          Search
-        </button>
-      </div>
+      {halls.length === 0 && (
+        <p className="text-gray-500">No halls available</p>
+      )}
 
-      {loading && <p>Loading...</p>}
-
-      {halls.length === 0 && !loading && <p>No halls available</p>}
-
-      <ul>
+      <div className="space-y-4">
         {halls.map((item) => (
-          <li
+          <div
             key={item.id}
-            style={{
-              marginBottom: 24,
-              padding: 16,
-              border: "1px solid #ddd",
-              borderRadius: 8,
-              maxWidth: 420,
-            }}
+            className="bg-white rounded-xl shadow p-4"
           >
-            <strong>{item.vendor.name}</strong>
-            <br />
-            Location: {item.vendor.location}
-            <br />
-            Price: ₹{item.vendor.basePrice}
-            <br />
-            Date: {new Date(item.date).toDateString()}
-            <br />
+            <h2 className="text-lg font-semibold">
+              {item.vendor.name}
+            </h2>
+
+            <p className="text-gray-600">
+              📍 {item.vendor.location}
+            </p>
+
+            <p className="font-medium mt-1">
+              ₹{item.vendor.basePrice}
+            </p>
+
+            <p className="text-sm text-gray-500">
+              {new Date(item.date).toDateString()}
+            </p>
 
             <Link
-	      href={`/halls/${item.id}?date=${encodeURIComponent(item.date)}`}	
-              style={{
-                display: "inline-block",
-                marginTop: 12,
-                padding: "8px 16px",
-                backgroundColor: "#2563eb",
-                color: "#fff",
-                borderRadius: 6,
-                fontWeight: 600,
-                textDecoration: "none",
-              }}
+              href={`/halls/${item.id}?date=${item.date}`}
+              className="block mt-3 text-center bg-blue-600 text-white py-2 rounded-lg font-semibold active:scale-95 transition"
             >
-              Book Now →
+              Book Now
             </Link>
-          </li>
+          </div>
         ))}
-      </ul>
+      </div>
     </div>
   );
 }

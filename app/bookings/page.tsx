@@ -46,7 +46,7 @@ export default function BookingsPage() {
 
       if (!res.ok) throw new Error("Cancel failed");
 
-      // ✅ Update UI instantly (no reload needed)
+      // Instant UI update
       setBookings((prev) =>
         prev.map((b) =>
           b.id === id ? { ...b, status: "CANCELLED" } : b
@@ -64,62 +64,72 @@ export default function BookingsPage() {
     loadBookings();
   }, []);
 
-  if (loading) return <p style={{ padding: 40 }}>Loading…</p>;
+  if (loading)
+    return (
+      <div className="min-h-screen bg-gray-50 p-6">
+        <p className="text-gray-600">Loading bookings...</p>
+      </div>
+    );
 
   return (
-    <div style={{ padding: 40 }}>
-      <h1>My Bookings</h1>
+    <div className="min-h-screen bg-gray-50 p-6">
+      <h1 className="text-2xl font-bold mb-6">My Bookings</h1>
 
-      {bookings.length === 0 && <p>No bookings found</p>}
+      {bookings.length === 0 && (
+        <p className="text-gray-500">No bookings found</p>
+      )}
 
-      {bookings.map((b) => (
-        <div
-          key={b.id}
-          style={{
-            border: "1px solid #ddd",
-            borderRadius: 8,
-            padding: 20,
-            marginBottom: 20,
-            maxWidth: 420,
-            background: b.status === "CANCELLED" ? "#f9f9f9" : "#fff",
-            opacity: b.status === "CANCELLED" ? 0.7 : 1,
-          }}
-        >
-          <strong style={{ fontSize: 18 }}>{b.vendor.name}</strong>
-          <br />
-          {b.vendor.location}
-          <br />
-          Date: {new Date(b.date).toDateString()}
-          <br />
-          Amount: ₹{b.amount}
-          <br />
-          Status:{" "}
-          <b style={{ color: b.status === "CONFIRMED" ? "green" : "gray" }}>
-            {b.status}
-          </b>
-          <br />
+      <div className="space-y-4">
+        {bookings.map((b) => (
+          <div
+            key={b.id}
+            className={`bg-white rounded-xl shadow p-5 transition ${
+              b.status === "CANCELLED" ? "opacity-60" : ""
+            }`}
+          >
+            <h2 className="text-lg font-semibold">
+              {b.vendor.name}
+            </h2>
 
-          {b.status === "CONFIRMED" && (
-            <button
-              onClick={() => cancelBooking(b.id)}
-              disabled={cancellingId === b.id}
-              style={{
-                marginTop: 12,
-                padding: "8px 16px",
-                backgroundColor: "#dc2626",
-                color: "#fff",
-                border: "none",
-                borderRadius: 6,
-                cursor: "pointer",
-                fontWeight: 600,
-                opacity: cancellingId === b.id ? 0.6 : 1,
-              }}
-            >
-              {cancellingId === b.id ? "Cancelling..." : "Cancel Booking"}
-            </button>
-          )}
-        </div>
-      ))}
+            <p className="text-gray-600">
+              📍 {b.vendor.location}
+            </p>
+
+            <p className="mt-2 text-sm">
+              📅 {new Date(b.date).toDateString()}
+            </p>
+
+            <p className="mt-1 font-medium">
+              ₹{b.amount}
+            </p>
+
+            <p className="mt-2">
+              Status:{" "}
+              <span
+                className={`font-semibold ${
+                  b.status === "CONFIRMED"
+                    ? "text-green-600"
+                    : "text-gray-500"
+                }`}
+              >
+                {b.status}
+              </span>
+            </p>
+
+            {b.status === "CONFIRMED" && (
+              <button
+                onClick={() => cancelBooking(b.id)}
+                disabled={cancellingId === b.id}
+                className="mt-4 w-full bg-red-600 text-white py-2 rounded-lg font-semibold active:scale-95 transition disabled:opacity-50"
+              >
+                {cancellingId === b.id
+                  ? "Cancelling..."
+                  : "Cancel Booking"}
+              </button>
+            )}
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
