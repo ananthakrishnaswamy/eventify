@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
       type,
       location,
       basePrice,
-      halls:
+      hall:
         type === "HALL"
           ? {
               create: {
