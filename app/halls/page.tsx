@@ -48,7 +48,7 @@ return (
       {halls.map((item) => (
         <a
           key={item.id}
-          href={`/halls/${item.id}?date=${item.date.toISOString()}`}
+          href={`/halls/${item.id}?date=${item.date}`}
           className="block bg-white rounded-xl shadow p-5 active:scale-95 transition"
         >
           <h2 className="text-lg font-semibold">
