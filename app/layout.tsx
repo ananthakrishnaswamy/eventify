@@ -1,6 +1,11 @@
 import "./globals.css";
 import Link from "next/link";
 
+export const metadata = {
+  title: "Eventify",
+  description: "Premium event booking platform",
+};
+
 export default function RootLayout({
   children,
 }: {
@@ -8,25 +13,36 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className="bg-gray-50 min-h-screen">
+      <body className="bg-[#0B0F1A] text-white">
 
-        {/* Main Content */}
-        <div className="pb-20">
+        {/* Page Content */}
+        <div className="min-h-screen pb-24">
           {children}
         </div>
 
         {/* Bottom Navigation */}
-        <nav className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-md flex justify-around py-3 text-sm font-semibold">
-          <Link href="/" className="text-blue-600">
-            🏠 Home
+        <nav className="
+          fixed bottom-0 left-0 right-0
+          bg-black/40 backdrop-blur-xl
+          border-t border-white/10
+          flex justify-around
+          py-3
+          text-sm
+          text-gray-300
+        ">
+          <Link href="/" className="flex flex-col items-center">
+            🏠
+            <span>Home</span>
           </Link>
 
-          <Link href="/halls" className="text-blue-600">
-            🏛 Book
+          <Link href="/halls" className="flex flex-col items-center">
+            🏛
+            <span>Book</span>
           </Link>
 
-          <Link href="/bookings" className="text-blue-600">
-            📋 My Bookings
+          <Link href="/bookings" className="flex flex-col items-center">
+            📋
+            <span>Bookings</span>
           </Link>
         </nav>
 
