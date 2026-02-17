@@ -69,77 +69,52 @@ export default function BookingsPage() {
   if (loading)
     return <p className="p-6 text-center">Loading…</p>;
 
-  return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      {/* Back Button */}
-      <button
-        onClick={() => router.back()}
-        className="mb-4 text-indigo-600 font-semibold hover:underline"
-      >
-        ← Back
-      </button>
+return (
+  <div className="p-6">
+    <h1 className="text-2xl font-bold text-blue-700 mb-4">
+      My Bookings
+    </h1>
 
-      <h1 className="text-2xl font-bold mb-6 text-indigo-700">
-        My Bookings
-      </h1>
+    {bookings.length === 0 && (
+      <p className="text-gray-500">No bookings yet</p>
+    )}
 
-      {bookings.length === 0 && (
-        <p className="text-gray-500">
-          No bookings found
-        </p>
-      )}
-
-      <div className="space-y-5">
-        {bookings.map((b) => (
-          <div
-            key={b.id}
-            className={`p-5 rounded-2xl shadow-md bg-white ${
-              b.status === "CANCELLED"
-                ? "opacity-60"
-                : ""
-            }`}
-          >
-            <h2 className="text-lg font-semibold">
+    <div className="space-y-4">
+      {bookings.map((b) => (
+        <div
+          key={b.id}
+          className="bg-white rounded-xl shadow p-5"
+        >
+          <div className="flex justify-between items-center">
+            <h2 className="font-semibold">
               {b.vendor.name}
             </h2>
 
-            <p className="text-gray-600">
-              📍 {b.vendor.location}
-            </p>
-
-            <p className="mt-1">
-              📅 {new Date(b.date).toDateString()}
-            </p>
-
-            <p className="mt-2 font-bold">
-              ₹{b.amount}
-            </p>
-
-            <p
-              className={`mt-2 font-semibold ${
+            <span
+              className={`text-xs px-3 py-1 rounded-full font-semibold ${
                 b.status === "CONFIRMED"
-                  ? "text-green-600"
-                  : "text-gray-500"
+                  ? "bg-green-100 text-green-700"
+                  : "bg-gray-200 text-gray-600"
               }`}
             >
               {b.status}
-            </p>
-
-            {b.status === "CONFIRMED" && (
-              <button
-                onClick={() => cancelBooking(b.id)}
-                disabled={cancellingId === b.id}
-                className="mt-4 w-full bg-red-600 text-white py-2 rounded-xl font-semibold active:scale-95 transition disabled:opacity-60"
-              >
-                {cancellingId === b.id
-                  ? "Cancelling..."
-                  : "Cancel Booking"}
-              </button>
-            )}
+            </span>
           </div>
-        ))}
-      </div>
+
+          <p className="text-gray-600 text-sm">
+            📍 {b.vendor.location}
+          </p>
+
+          <p className="mt-2 text-sm">
+            📅 {new Date(b.date).toDateString()}
+          </p>
+
+          <p className="mt-2 font-bold text-green-600">
+            ₹{b.amount}
+          </p>
+        </div>
+      ))}
     </div>
-  );
-}
+  </div>
+);
 

@@ -2,67 +2,49 @@ import Link from "next/link";
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      {/* Title */}
-      <h1 className="text-4xl font-extrabold text-indigo-700 mb-2">
+    <div className="p-6">
+
+      <h1 className="text-3xl font-extrabold text-blue-700 mb-2">
         Eventify
       </h1>
-      <p className="text-gray-600 mb-8">
-        Book halls, caterers, purohits & manage your events easily.
+
+      <p className="text-gray-600 mb-6">
+        Book halls, caterers, purohits & more — all in one place.
       </p>
 
-      {/* Navigation Cards */}
-      <div className="grid gap-5 max-w-md">
+      <div className="grid grid-cols-2 gap-4">
 
-        <Link
+        <a
           href="/halls"
-          className="bg-indigo-600 text-white p-5 rounded-xl shadow-md hover:bg-indigo-700 transition transform hover:scale-105"
+          className="bg-white rounded-xl shadow p-5 text-center active:scale-95 transition"
         >
-          <h2 className="text-xl font-bold">🏛 Book Halls</h2>
-          <p className="text-indigo-100 mt-1">
-            Browse available halls & confirm booking
-          </p>
-        </Link>
+          <div className="text-3xl mb-2">🏛</div>
+          <p className="font-semibold">Book Halls</p>
+        </a>
 
-        <Link
+        <a
           href="/bookings"
-          className="bg-green-600 text-white p-5 rounded-xl shadow-md hover:bg-green-700 transition transform hover:scale-105"
+          className="bg-white rounded-xl shadow p-5 text-center active:scale-95 transition"
         >
-          <h2 className="text-xl font-bold">📖 My Bookings</h2>
-          <p className="text-green-100 mt-1">
-            View and cancel your bookings
-          </p>
-        </Link>
+          <div className="text-3xl mb-2">📋</div>
+          <p className="font-semibold">My Bookings</p>
+        </a>
 
-        <Link
-          href="/event"
-          className="bg-purple-600 text-white p-5 rounded-xl shadow-md hover:bg-purple-700 transition transform hover:scale-105"
+        <a
+          href="/vendor/dashboard"
+          className="bg-white rounded-xl shadow p-5 text-center active:scale-95 transition"
         >
-          <h2 className="text-xl font-bold">🎉 Event Bundle</h2>
-          <p className="text-purple-100 mt-1">
-            Book hall + caterer + purohit together
-          </p>
-        </Link>
+          <div className="text-3xl mb-2">🏢</div>
+          <p className="font-semibold">Vendor Dashboard</p>
+        </a>
 
-        <Link
-          href="/vendor"
-          className="bg-orange-500 text-white p-5 rounded-xl shadow-md hover:bg-orange-600 transition transform hover:scale-105"
-        >
-          <h2 className="text-xl font-bold">🛠 Vendor Dashboard</h2>
-          <p className="text-orange-100 mt-1">
-            Manage vendor availability & bookings
-          </p>
-        </Link>
-
-        <Link
+        <a
           href="/admin/vendors"
-          className="bg-gray-800 text-white p-5 rounded-xl shadow-md hover:bg-black transition transform hover:scale-105"
+          className="bg-white rounded-xl shadow p-5 text-center active:scale-95 transition"
         >
-          <h2 className="text-xl font-bold">⚙ Admin Panel</h2>
-          <p className="text-gray-300 mt-1">
-            Add and manage vendors
-          </p>
-        </Link>
+          <div className="text-3xl mb-2">⚙️</div>
+          <p className="font-semibold">Admin</p>
+        </a>
 
       </div>
     </div>
