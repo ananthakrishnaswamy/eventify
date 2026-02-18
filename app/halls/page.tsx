@@ -35,40 +35,66 @@ export default function HallsPage() {
   if (loading) return <div className="p-6">Loading...</div>;
 
 return (
-  <div className="p-6">
-    <h1 className="text-2xl font-bold text-blue-700 mb-4">
+  <div className="min-h-screen bg-gradient-to-br from-[#0B0F1A] via-[#111827] to-[#0f172a] p-6 pb-24">
+
+    <h1 className="text-3xl font-bold text-blue-400 mb-6">
       Available Halls
     </h1>
 
     {halls.length === 0 && (
-      <p className="text-gray-500">No halls available</p>
+      <p className="text-gray-400">No halls available</p>
     )}
 
-    <div className="space-y-4">
+    <div className="space-y-6">
       {halls.map((item) => (
         <a
           key={item.id}
           href={`/halls/${item.id}?date=${item.date}`}
-          className="block bg-white rounded-xl shadow p-5 active:scale-95 transition"
+          className="
+            block
+            bg-white/5
+            backdrop-blur-xl
+            border border-white/10
+            rounded-2xl
+            p-6
+            shadow-lg
+            hover:shadow-blue-500/20
+            active:scale-95
+            transition
+          "
         >
-          <h2 className="text-lg font-semibold">
+          <h2 className="text-lg font-semibold text-white">
             {item.vendor.name}
           </h2>
 
-          <p className="text-gray-600 text-sm">
+          <p className="text-gray-400 mt-2">
             📍 {item.vendor.location}
           </p>
 
-          <p className="mt-2 text-sm">
+          <p className="text-gray-400">
             📅 {new Date(item.date).toDateString()}
           </p>
 
-          <p className="mt-2 font-bold text-green-600">
+          <p className="mt-4 text-2xl font-bold text-green-400">
             ₹{item.vendor.basePrice}
           </p>
 
-          <div className="mt-3 bg-blue-600 text-white py-2 text-center rounded-lg font-semibold">
-            Book Now →
+          <div className="mt-5">
+            <div
+              className="
+                bg-gradient-to-r
+                from-blue-600
+                to-blue-500
+                text-white
+                text-center
+                py-3
+                rounded-xl
+                font-semibold
+                shadow-md
+              "
+            >
+              Book Now →
+            </div>
           </div>
         </a>
       ))}

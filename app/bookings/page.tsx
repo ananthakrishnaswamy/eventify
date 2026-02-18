@@ -75,10 +75,12 @@ return (
       My Bookings
     </h1>
 
-    {bookings.length === 0 && (
-      <p className="text-gray-500">No bookings yet</p>
-    )}
-
+{bookings.length === 0 && (
+  <div className="text-center mt-10 text-gray-400">
+    <p className="text-lg">No bookings yet</p>
+    <p className="text-sm mt-2">Book a hall to see it here</p>
+  </div>
+)}
     <div className="space-y-4">
       {bookings.map((b) => (
         <div
